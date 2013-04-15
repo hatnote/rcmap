@@ -20,6 +20,8 @@ var country_name_map = {
          'United States': 'United States of America'
 };
 
+var total_edits = 0;
+var edits_per_minute = [];
 var world_map;
 
 var log_rc = function(rc_str, limit) {
@@ -130,6 +132,21 @@ var addBubbles = function(bubbles) {
             return datum.radius;
         })
         .each(function(d){
+            total_edits += 1;
+            edits_per_minute.push(new Date().getTime())
+            /*
+            for (var i=0;i<edits_per_minute.length;i++) {
+                var now = new Date().getTime()
+                if (edits_per_minute[i] < (now - 60000)) {
+                    edits_per_minute.pop(i)
+                }
+            }
+            */
+            if (total_edits == 1) {
+                $('#edit_counter').html('You have seen <span>' + total_edits + ' edit</span>.')
+            } else {
+                $('#edit_counter').html('You have seen a total of <span>' + total_edits + ' edits</span>.')
+            }
             var x = projection([d.longitude, d.latitude])[0];
             var y = projection([d.longitude, d.latitude])[1];
             var div = $('<div />').css({

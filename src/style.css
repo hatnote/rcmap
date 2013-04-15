@@ -74,6 +74,13 @@ a:hover {
     margin-bottom: 1em;
     border-bottom: 1px solid #d8e6ec;
 }
+#edit_counter {
+    font-size: 1.5em;
+    color: #000;
+}
+#edit_counter span {
+    color: #cc4731;
+}
 #map {
     position:relative;
     height: 460px;
