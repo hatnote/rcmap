@@ -1,293 +1,66 @@
 <html>
 <head>
-    <script src='jquery-1.9.1.min.js'></script>
-    <script src="reconnecting-websocket.min.js" type="text/javascript"></script>
+    <LINK href='src/style.css' rel='stylesheet' type='text/css'>
+    <script src='src/jquery-1.9.1.min.js' type="text/javascript"></script>
+    <script src='src/datamaps-world.js' type="text/javascript"></script>
+    <script src="src/reconnecting-websocket.min.js" type="text/javascript"></script>
+    <script src="src/main.js" type="text/javascript" type="text/javascript"></script>
+    <script>
+        var RC_LOG_SIZE = 20;
+        var WS_URL = 'ws://localhost:9000';
 
-  <script>
-    String.prototype.startsWith = function(str) {
-        return (this.match("^"+str)==str)
-    }
-    var country_name_map = {
-         'Brunei Darussalam': 'Brunei',
-         'Congo': 'Republic of the Congo',
-         'Congo, The Democratic Republic of the': 'Democratic Republic of the Congo',
-         "Cote D'Ivoire": 'Ivory Coast',
-         'Falkland Islands (Malvinas)': 'Falkland Islands',
-         'French Southern Territories': 'French Southern and Antarctic Lands',
-         'Guinea-Bissa': 'Guinea Bissau',
-         'Iran, Islamic Republic of': 'Iran',
-         "Korea, Democratic People's Republic of": 'North Korea',
-         'Korea, Republic of': 'South Korea',
-         "Lao People's Democratic Republic": 'Laos',
-         'Moldova, Republic of': 'Moldova',
-         'Palestinian Territory': 'West Bank',
-         'Russian Federation': 'Russia',
-         'Serbia': 'Republic of Serbia',
-         'Syrian Arab Republic': 'Syria',
-         'Tanzania, United Republic of': 'United Republic of Tanzania',
-         'Timor-Leste': 'East Timor',
-         'United States': 'United States of America'
-    }
-    var world_map;
-    var log_rc = function(rc_str, limit) {
-        $('#rc-list').prepend('<li>' + rc_str + '</li>')
-        if($('#rc-list li').length > limit) {
-            $('#rc-list li').slice(limit, limit + 1).remove();
-        }
-    }
-    var highlight_country = function(country_name) {
-        return d3.select('path[data-country-name="' + country_name + '"]')
-                          .style('fill', '#eddc4e')
-                          .transition()
-                          .duration(5000)
-                          .style('fill', '#ccc')
-    }
-    var get_country_names = function() {
-        var ret = [];
-        d3.selectAll('path[data-country-name]')
-          .each(function(d) {
-            ret.push(d.properties.name)
-          });
-        return ret
-    }
-    var addBubbles = function(bubbles) {
-        var self = this;
-        if (_.isUndefined(bubbles.length)) {
-            bubbles = [];
-        }
-
-        var projection = this._map.get('projection');
-        var options = this.options.bubble_config;
-
-        var bubbleContainer = this.svg.append('g').attr('class', 'bubbles');
-        bubbleContainer
-            .selectAll('circle.bubble')
-            .data(bubbles)
-            .enter()
-            .append('svg:circle')
-            .on('mouseover', function(datum) {
-                var hoverover = self.$el.find('.hoverover');
-                var eventData = {
-                    data: datum
-                };
-
-                hoverover.css({position:'absolute'})
-                .html(options.popupTemplate( eventData )).show();
-
-                hoverover.data('width', self.$el.find('.hoverover').width());
-
-                if (options.highlightOnHover) {
-                    d3.select(this)
-                    .style('fill', options.highlightFillColor)
-                    .style('stroke', options.highlightBorderColor)
-                    .style('stroke-width', options.highlightBorderWidth)
-                    .style('fill-opacity', options.highlightFillOpacity);
-                }
-                self.$el.trigger($.Event("bubble-mouseover"), eventData);
-            })
-            .on('mousemove', function() {
-                self.updateHoverOverPosition(this);
-            })
-            .on('mouseout', function(datum) {
-                self.$el.find('.hoverover').hide();
-                var eventData = {
-                    data: datum
-                };
-
-                self.$el.trigger($.Event("bubble-mouseout"), eventData);
-
-                if (options.highlightOnHover) {
-                  var el = d3.select(this);
-                    el.style('fill', el.attr('data-fill'))
-                      .style('stroke', options.borderColor)
-                      .style('stroke-width', options.borderWidth)
-                      .style('fill-opacity', options.fillOpacity);
-                }
-            })
-            .on('touchstart', function(datum) {
-                self.$el.trigger($.Event("bubble-touchstart"), {data: datum});
-            })
-            .on('click', function(datum) {
-                self.$el.trigger($.Event("bubble-click"), {data: datum});
-            })
-            .attr('cx', function(datum) {
-                return projection([datum.longitude, datum.latitude])[0];
-            })
-            .attr('cy', function(datum, index) {
-                return projection([datum.longitude, datum.latitude])[1];
-            })
-            .style('fill', function(datum) {
-                var fillColor = self.getFillColor(datum);
-                d3.select(this).attr('data-fill', fillColor);
-                return fillColor;
-            })
-            .style('stroke', function(datum) {
-                return options.borderColor; //self.getFillColor(datum);
-            })
-            .attr('class', 'bubble')
-            .style('stroke-width', options.borderWidth)
-            .attr('fill-opacity', options.fillOpacity)
-            .attr('r', 0)
-            .transition()
-            .duration(400)
-            .attr('r', function(datum) {
-                return datum.radius;
-            })
-            .each(function(d){
-                var x = projection([d.longitude, d.latitude])[0]
-                var y = projection([d.longitude, d.latitude])[1]
-                var div = $('<div/>').css({position:'absolute',
-                                            'top': y + 5,
-                                            'left': x,
-                                            'padding': '4px',
-                                            'border-radius': '1px',
-                                            'background-color': '#FFF',
-                                            'box-shadow': '1px 1px 5px #CCC',
-                                            'font-size': '12px',
-                                            'border': '1px solid #CCC'})
-                                    .animate({opacity: 0}, 4000);
-
-                div.html(d.page_title);
-                $('#map').append(div);
-            });
-    };
-    $(document).ready(function() {
-        world_map = $("#map")
-            .datamap({scope: 'world',
-                      bubbles:[],
-                      geography_config: {
-                      highlightOnHover: false,
-                      popupOnHover: false,
-                     },
-                    bubble_config: {
-                        borderWidth: 0,
-                        borderColor: '#000',
-                        popupOnHover: true,
-                        popupTemplate: _.template('<div class="hoverinfo"><%= data.page_title %></div>'),
-                        fillOpacity: 0.75,
-                        animate: true,
-                        highlightOnHover: true,
-                        highlightBorderColor: '#667FAF',
-                        highlightFillColor: '#667FAF',
-                        highlightBorderWidth: 1,
-                        highlightFillOpacity: 0.85
-                    },
-                    fills: {
-                        defaultFill: '#ccc',
-                        'add': '#306596',
-                        'subtract': '#cc4731',
-                    }
-             });
-
-        world_map.addBubbles = addBubbles;
-        return
-    });
-
-    function enWikipediaSocket() {
-
-    }
-
-    enWikipediaSocket.init = function() {
-        // Terminate previous connection, if any
-        if (this.connection)
-          this.connection.close();
-
-        if ('WebSocket' in window) {
-            var connection = new ReconnectingWebSocket('ws://localhost:9000');
-            this.connection = connection;
-
-            connection.onopen = function() {
-                console.log('Connection open!');
-            };
-
-            connection.onclose = function() {
-                console.log('Connection closed ...')
-            };
-
-            connection.onerror = function(error) {
-                console.log('Connection Error: ' + error);
-            };
-
-            connection.onmessage = function(resp) {
-                try {
-                    var data = JSON.parse(resp.data);
-                    if (data.change_size > 0) {
-                        fill_key = 'add'
-                    } else {
-                        fill_key = 'subtract'
-                    }
-                    req_url = 'http://freegeoip.net/json/' + data.user
-                    $.getJSON(req_url, null, function(fgi_resp) {
-                        world_map.options.bubbles = world_map.options.bubbles.slice(-20)
-                        loc_str = fgi_resp.country_name
-                        if (fgi_resp.region_name) {
-                            loc_str = fgi_resp.region_name + ', ' + loc_str
+        /*  ================================================================ */
+        $(document).ready(function() {
+            world_map = $("#map")
+                .datamap({scope: 'world',
+                          bubbles:[],
+                          geography_config: {
+                          highlightOnHover: false,
+                          popupOnHover: false
+                         },
+                        bubble_config: {
+                            borderWidth: 0,
+                            borderColor: '#000',
+                            popupOnHover: true,
+                            popupTemplate: _.template('<div class="hoverinfo"><%= data.page_title %></div>'),
+                            fillOpacity: 0.75,
+                            animate: true,
+                            highlightOnHover: true,
+                            highlightBorderColor: '#667FAF',
+                            highlightFillColor: '#667FAF',
+                            highlightBorderWidth: 1,
+                            highlightFillOpacity: 0.85
+                        },
+                        fills: {
+                            defaultFill: '#ccc',
+                            'add': '#306596',
+                            'subtract': '#cc4731'
                         }
-                        if (fgi_resp.city) {
-                            loc_str = fgi_resp.city + ' (' + loc_str + ')'
-                        }
-                        log_rc_str = 'An editor in ' + loc_str + ' edited "<a href="' + data.url + '" target="_blank">' + data.page_title + '</a>"'
-                        log_rc(log_rc_str, 20)
-                        //console.log('An editor in ' + loc_str + ' edited "' + data.page_title + '"')
-                        $('.bubbles')
-                            .animate({opacity: 0,
-                                radius: 10},
-                                40000,
-                                null,
-                                function(){
-                                    this.remove()
-                                })
-                        world_map
-                            .addBubbles([{radius: 4,
-                                latitude: fgi_resp.latitude,
-                                longitude: fgi_resp.longitude,
-                                page_title: data.page_title,
-                                fillKey: fill_key,
-                            }])
-                        country_hl = highlight_country(fgi_resp.country_name)
+                 });
+            world_map.addBubbles = addBubbles;
+            return;
+        });
 
-                        if (!country_hl[0][0]) {
-                            country_hl = highlight_country(country_name_map[fgi_resp.country_name])
-                            if (!country_hl[0][0]) {
-                                console.log('Could not highlight country: ' + fgi_resp.country_name)
-                            }
-                        }
-                    })
-                } catch (e) {
-                  console.log(resp);
-                }
-            }
-        };
-    }
-
-    enWikipediaSocket.close = function() {
-        if (this.connection)
-            this.connection.close();
-    };
-    enWikipediaSocket.init();
-  </script>
-  <style>
-  .wrapper {
-    overflow: hidden; /* To clear contents */
-    zoom: 1; /* To fix IE6 bugs with floats */
-}
-#map {
-    position:relative;
-    height: 600px;
-    width: 960px;
-}
-  </style>
+        enWikipediaSocket.init();
+    </script>
 </head>
 <body>
     <h1>English Wikipedia Recent Changes Map</h1>
     <div id="wrapper">
         <div id='map'></div>
     </div>
-    <h3>Recent changes</h3>
-    <ul id='rc-list'>
-    </ul>
+    <div class='bg'>
+        <div class='rc-list'>
+        <h3>Recent changes</h3>
+            <ul id='rc-list'>
+            </ul>
+        <div class='note'><p>For more, see Wikipedia's <a href="http://en.wikipedia.org/wiki/Special:RecentChanges">RecentChanges</a>.</p></div>
+        </div>
+    </div>
+    <div class='foot'>
     <h3>What is this map?</h3>
-    <p>When an <a href='http://en.wikipedia.org/wiki/Wikipedia:User_access_levels#Unregistered_users'>unregistered user</a> edits Wikipedia, he or she is identified by his or her IP address. These IP addresses are translated to geographic location using the <a href='http://freegeoip.net/'>freegeoip.net geolocation API</a>. Built using <a href='http://d3js.org'>d3</a>, <a href='http://datamaps.github.io/'>DataMaps</a>, and the <a href='http://meta.wikimedia.org/wiki/Research:Data#IRC_Feeds'>Wikimedia RecentChanges IRC feed</a>.
-  <script src='datamaps-world.js'></script>
+    <p>When an <a href='http://en.wikipedia.org/wiki/Wikipedia:User_access_levels#Unregistered_users'>unregistered user</a> edits Wikipedia, he or she is identified by his or her IP address. These IP addresses are translated to geographic location using the <a href='http://freegeoip.net/'>freegeoip.net geolocation API</a>. Built using <a href='http://d3js.org'>d3</a>, <a href='http://datamaps.github.io/'>DataMaps</a>, and the <a href='http://meta.wikimedia.org/wiki/Research:Data#IRC_Feeds'>Wikimedia RecentChanges IRC feed</a>.</p>
+    <p>Built by Stephen LaPorte and Mahmoud Hashemi.</p>
+    </div>
 </body>
 </html>
