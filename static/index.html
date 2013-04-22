@@ -7,7 +7,7 @@
     <script src="main.js" type="text/javascript" type="text/javascript"></script>
     <script>
         var RC_LOG_SIZE = 20;
-        var WS_URL = 'ws://localhost:9000';  <!-- TODO -->
+        var WS_URL = 'ws://hatnote.com:9000';  <!-- TODO -->
 
         /*  ================================================================ */
         $(document).ready(function() {
@@ -63,5 +63,13 @@
     <p>When an <a href='http://en.wikipedia.org/wiki/Wikipedia:User_access_levels#Unregistered_users'>unregistered user</a> edits Wikipedia, he or she is identified by his or her IP address. These IP addresses are translated to geographic location using the <a href='http://freegeoip.net/'>freegeoip.net geolocation API</a>. Built using <a href='http://d3js.org'>d3</a>, <a href='http://datamaps.github.io/'>DataMaps</a>, and the <a href='http://meta.wikimedia.org/wiki/Research:Data#IRC_Feeds'>Wikimedia RecentChanges IRC feed</a>. Source <a href='https://github.com/slaporte/recentchanges_map'>available on github</a>.</p>
     <p>Built by Stephen LaPorte and Mahmoud Hashemi.</p>
     </div>
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-40320359-1', 'hatnote.com');
+    ga('send', 'pageview');
+    </script>
 </body>
 </html>
