@@ -1,7 +1,14 @@
-# RecentChanges map
+# rcmap - Realtime mapping of anonymous edits to Wikipedia
 
-Watch contributions from unregistered users on a map.
+rcmap uses [d3.js](http://d3js.org) and
+[DataMaps](http://datamaps.github.io) to display a world map showing
+anonymous edits to Wikipedia, geolocated by IP. Data is served over
+WebSockets served by an instance of
+[wikimon](https://github.com/hatnote/wikimon).
 
-# Requirements
- - Needs to listen to a [wiki monitor websocket](https://github.com/slaporte/wiki_monitor)
+Written by [Stephen LaPorte](https://github.com/slaporte) and [Mahmoud
+Hashemi](https://github.com/mahmoud).
 
+## See also
+
+* [hatnote](https://github.com/hatnote)
