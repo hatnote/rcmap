@@ -21,8 +21,23 @@ var country_name_map = {
 };
 
 var total_edits = 0;
-var edits_per_minute = [];
+var edit_times = [];
+var edit_intervals = [];
 var world_map;
+var open_con = []
+var toggler = function($e, url, lid) {
+    var socket = new wikipediaSocket.init(url, lid);
+    if ($e.is(':checked')) {
+        socket.connect();
+    }
+    $e.click(function() {
+        if ($e.is(':checked')) {
+            socket.connect();
+        } else {
+            socket.close();
+        }
+    });
+}
 
 var log_rc = function(rc_str, limit) {
     $('#rc-list').prepend('<li>' + rc_str + '</li>');
@@ -133,116 +148,132 @@ var addBubbles = function(bubbles) {
         })
         .each(function(d){
             total_edits += 1;
-            edits_per_minute.push(new Date().getTime())
-            /*
-            for (var i=0;i<edits_per_minute.length;i++) {
-                var now = new Date().getTime()
-                if (edits_per_minute[i] < (now - 60000)) {
-                    edits_per_minute.pop(i)
-                }
+            edit_times.push(new Date().getTime());
+            if (total_edits > 2) {
+                var cur = edit_times[edit_times.length - 1];
+                var prev = edit_times[edit_times.length - 2];
+                edit_intervals.push(cur - prev);
             }
-            */
+            var s = 0;
+            for (var i = 0; i < edit_intervals.length; i ++) {
+                s += edit_intervals[i];
+            }
+            var rate_avg = Math.ceil(((s / edit_intervals.length) / 1000) * 10);
+            edit_times = edit_times.slice(0, 500);
+            edit_intervals = edit_intervals.slice(0, 500);
             if (total_edits == 1) {
-                $('#edit_counter').html('You have seen <span>' + total_edits + ' edit</span>.')
-            } else {
-                $('#edit_counter').html('You have seen a total of <span>' + total_edits + ' edits</span>.')
+                $('#edit_counter').html('You have seen <span>' + total_edits + ' edit</span>.');
+            } else if (total_edits == 2) {
+                $('#edit_counter').html('You have seen a total of <span>' + total_edits + ' edits</span>.');
+            } else{
+                $('#edit_counter').html('You have seen a total of <span>' + total_edits + ' edits</span> at an average interval of <span>' + rate_avg + ' seconds</span>.');
             }
             var x = projection([d.longitude, d.latitude])[0];
             var y = projection([d.longitude, d.latitude])[1];
             var div = $('<div />').css({
                                         position:'absolute',
-                                        'top': y + 5,
-                                        'left': x,
+                                        'top': y + 10,
+                                        'left': x + 10
                                         })
                                 .addClass('popup-box')
                                 .animate({opacity: 0}, 4000, null, function() {
                                     this.remove();
                                 });
 
-            div.html(d.page_title);
+            div.html(d.page_title + ' <span class="lang">(' + d.lid + ')</span>');
             $('#map').append(div);
         });
 };
 
-function enWikipediaSocket() {
+function wikipediaSocket() {
 
 }
 
-enWikipediaSocket.init = function() {
-    // Terminate previous connection, if any
-    if (this.connection)
-      this.connection.close();
 
-    if ('WebSocket' in window) {
-        var connection = new ReconnectingWebSocket(WS_URL);
-        this.connection = connection;
+wikipediaSocket.init = function(ws_url, lid) {
+    this.connect = function() {
+        $('#' + lid + '-status').html('(connecting...)')
+        var loading = true
+        // Terminate previous connection, if any
+        if (this.connection)
+          this.connection.close();
 
-        connection.onopen = function() {
-            console.log('Connection open!');
-        };
+        if ('WebSocket' in window) {
+            var connection = new ReconnectingWebSocket(ws_url);
+            this.connection = connection;
+            connection.onopen = function() {
+                console.log('Connection open to ' + lid);
+                $('#' + lid + '-status').html('(connected)')
+            };
 
-        connection.onclose = function() {
-            console.log('Connection closed ...')
-        };
+            connection.onclose = function() {
+                console.log('Connection closed to ' + lid);
+                $('#' + lid + '-status').html('(closed)')
+            };
 
-        connection.onerror = function(error) {
-            console.log('Connection Error: ' + error);
-        };
+            connection.onerror = function(error) {
+                $('#' + lid + '-status').html('Error')
+                console.log('Connection Error to ' + lid + ': ' + error);
+            };
 
-        connection.onmessage = function(resp) {
-            try {
-                var data = JSON.parse(resp.data);
-                var fill_key;
-                if (data.change_size > 0) {
-                    fill_key = 'add';
-                } else {
-                    fill_key = 'subtract';
-                }
-                req_url = 'http://freegeoip.net/json/' + data.user;
-                $.getJSON(req_url, null, function(fgi_resp) {
-                    world_map.options.bubbles = world_map.options.bubbles.slice(-20);
-                    loc_str = fgi_resp.country_name;
-                    if (fgi_resp.region_name) {
-                        loc_str = fgi_resp.region_name + ', ' + loc_str;
+            connection.onmessage = function(resp) {
+                try {
+                    if (loading) {
+                        $('#loading').remove()
                     }
-                    if (fgi_resp.city) {
-                        loc_str = fgi_resp.city + ' (' + loc_str + ')';
+                    var data = JSON.parse(resp.data);
+                    var fill_key;
+                    if (data.change_size > 0) {
+                        fill_key = 'add';
+                    } else {
+                        fill_key = 'subtract';
                     }
-                    log_rc_str = 'Someone in <span class="loc">' + loc_str + '</span> edited "<a href="' + data.url + '" target="_blank">' + data.page_title + '</a>"';
-                    log_rc(log_rc_str, RC_LOG_SIZE);
-                    //console.log('An editor in ' + loc_str + ' edited "' + data.page_title + '"')
-                    $('.bubbles')
-                        .animate({opacity: 0,
-                            radius: 10},
-                            40000,
-                            null,
-                            function(){
-                                this.remove();
-                            });
-                    world_map
-                        .addBubbles([{radius: 4,
-                            latitude: fgi_resp.latitude,
-                            longitude: fgi_resp.longitude,
-                            page_title: data.page_title,
-                            fillKey: fill_key,
-                        }])
-                    country_hl = highlight_country(fgi_resp.country_name)
-
-                    if (!country_hl[0][0]) {
-                        country_hl = highlight_country(country_name_map[fgi_resp.country_name])
-                        if (!country_hl[0][0]) {
-                            console.log('Could not highlight country: ' + fgi_resp.country_name)
+                    req_url = 'http://freegeoip.net/json/' + data.user;
+                    $.getJSON(req_url, null, function(fgi_resp) {
+                        world_map.options.bubbles = world_map.options.bubbles.slice(-20);
+                        loc_str = fgi_resp.country_name;
+                        if (fgi_resp.region_name) {
+                            loc_str = fgi_resp.region_name + ', ' + loc_str;
                         }
-                    }
-                })
-            } catch (e) {
-              console.log(resp);
-            }
+                        if (fgi_resp.city) {
+                            loc_str = fgi_resp.city + ' (' + loc_str + ')';
+                        }
+                        log_rc_str = 'Someone in <span class="loc">' + loc_str + '</span> edited "<a href="' + data.url + '" target="_blank">' + data.page_title + '</a>" <span class="lang">(' + lid + ')</span>';
+                        log_rc(log_rc_str, RC_LOG_SIZE);
+                        //console.log('An editor in ' + loc_str + ' edited "' + data.page_title + '"')
+                        $('.bubbles')
+                            .animate({opacity: 0,
+                                radius: 10},
+                                40000,
+                                null,
+                                function(){
+                                    this.remove();
+                                });
+                        world_map
+                            .addBubbles([{radius: 4,
+                                latitude: fgi_resp.latitude,
+                                longitude: fgi_resp.longitude,
+                                page_title: data.page_title,
+                                fillKey: fill_key,
+                                lid: lid
+                            }]);
+                        country_hl = highlight_country(fgi_resp.country_name);
+
+                        if (!country_hl[0][0]) {
+                            country_hl = highlight_country(country_name_map[fgi_resp.country_name]);
+                            if (!country_hl[0][0]) {
+                                console.log('Could not highlight country: ' + fgi_resp.country_name);
+                            }
+                        }
+                    });
+                } catch (e) {
+                  console.log(resp);
+                }
+            };
         }
     };
-}
-
-enWikipediaSocket.close = function() {
-    if (this.connection)
+    this.close = function() {
+        if (this.connection)
         this.connection.close();
+    };
 };

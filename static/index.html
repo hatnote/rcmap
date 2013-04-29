@@ -8,10 +8,15 @@
   <script src="main.js" type="text/javascript" type="text/javascript"></script>
   <script>
         var RC_LOG_SIZE = 20;
-        var WS_URL = 'ws://hatnote.com:9000';  <!-- TODO -->
+        var EN_URL = 'ws://hatnote.com:9000';  <!-- TODO -->
+        var JA_URL = 'ws://localhost:9000';
+        var DE_URL = 'ws://localhost:9500';
+        var RU_URL = 'ws://localhost:9700';
+
 
         /*  ================================================================ */
         $(document).ready(function() {
+          $('body').append('<div id="loading"><p>Connecting ...</p></div>')
             world_map = $("#map")
                 .datamap({scope: 'world',
                           bubbles:[],
@@ -23,7 +28,7 @@
                             borderWidth: 0,
                             borderColor: '#000',
                             popupOnHover: true,
-                            popupTemplate: _.template('<div class="hoverinfo"><%= data.page_title %></div>'),
+                            popupTemplate: _.template('<div class="hoverinfo"><%= data.page_title %> <span class="lang">(<%= data.lid %>)</span></div>'),
                             fillOpacity: 0.75,
                             animate: true,
                             highlightOnHover: true,
@@ -39,14 +44,23 @@
                         }
                  });
             world_map.addBubbles = addBubbles;
+            var en_box = $('#en-enable')
+            toggler(en_box, EN_URL, 'en')
+            var de_box = $('#de-enable')
+            toggler(de_box, DE_URL, 'de')
+            var ja_box = $('#ja-enable')
+            toggler(ja_box, JA_URL, 'ja')
+            var ru_box = $('#ru-enable')
+            toggler(ru_box, RU_URL, 'ru')
             return;
         });
-
-        enWikipediaSocket.init();
   </script>
 </head>
 <body>
-    <h1>English Wikipedia Recent Changes Map</h1>
+    <div id="head">
+      <h1>Wikipedia Recent Changes Map</h1>
+    </div>
+    <div class="content">
     <div id="wrapper">
         <div id="map"></div>
     </div>
@@ -57,11 +71,16 @@
         </ul>
         <div class="note">
           <p id="edit_counter"></p>
-          <p>For more, see Wikipedia's <a href="http://en.wikipedia.org/wiki/Special:RecentChanges">RecentChanges</a>.</p>
+          <p>For more, see Wikipedia's RecentChanges pages for <a href="http://www.wikipedia.org/">each language</a>.</p>
         </div>
       </div>
     </div>
     <div class="foot">
+      <h3>Settings</h3>
+      <p><input type="checkbox" name="English" id="en-enable" checked/><label for="English">English Wikipedia <span class="conStatus" id="en-status"></span></label></p>
+      <p><input type="checkbox" name="German" id="de-enable"/><label for="German">German Wikipedia <span class="conStatus" id="de-status"></span></label></p>
+      <p><input type="checkbox" name="Japanese" id="ja-enable"/><label for="Japanese">Japanese Wikipedia <span class="conStatus" id="ja-status"></span></label></p>
+      <p><input type="checkbox" name="Russian" id="ru-enable"/><label for="Russian">Russian Wikipedia <span class="conStatus" id="ru-status"></span></label></p>
       <h3>What is this map?</h3>
       <p>
         When an <a href="http://en.wikipedia.org/wiki/Wikipedia:User_access_levels#Unregistered_users">unregistered user</a> edits Wikipedia,
@@ -78,6 +97,7 @@
         Source <a href="https://github.com/hatnote/rcmap">available on github</a>.
       </p>
       <p>Built by <a href="https://github.com/slaporte">Stephen LaPorte</a> and <a href="https://github.com/mahmoud">Mahmoud Hashemi</a>.</p>
+    </div>
     </div>
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

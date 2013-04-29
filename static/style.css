@@ -21,17 +21,29 @@ a {
 a:hover {
     color: #cc4731;
 }
+label {
+    margin-left: .5em;
+}
 .wrapper {
     overflow: hidden; /* To clear contents */
     zoom: 1; /* To fix IE6 bugs with floats */
+}
+.content {
+    margin: 1em auto 4em auto;
+    width: 960px;
+    position:relative;
 }
 .popup-box {
     padding: 4px;
     border-radius: 1px;
     background-color: #FFF;
     box-shadow: 1px 1px 5px #CCC;
-    font-size: 1em;
+    font-size: .7em;
     border: 1px solid #CCC;
+}
+.lang {
+    color: #bdc3c7;
+    padding: auto .5em;
 }
 .loc {
     border-bottom: 1px dashed #ccc;
@@ -49,6 +61,9 @@ a:hover {
     margin: 0.5em;
     line-height: 1.5em;
     font-size: .8em;
+}
+.rc-list ul {
+    height: 30em;
 }
 .rc-list h3 {
     padding: .5em;
@@ -74,6 +89,9 @@ a:hover {
     margin-bottom: 1em;
     border-bottom: 1px solid #d8e6ec;
 }
+.conStatus {
+    color: #bdc3c7;
+}
 #edit_counter {
     font-size: 1.5em;
     color: #000;
@@ -82,7 +100,23 @@ a:hover {
     color: #cc4731;
 }
 #map {
-    position:relative;
-    height: 460px;
-    width: 960px;
+    height: 450px;
+    width: 900;
+    padding: .5em;
+}
+#loading {
+    position:absolute;
+    top:3em;
+    left:0;
+    right:0;
+    margin-left:auto;
+    margin-right:auto;
+    padding: 0;
+    font-size: 4em;
+    color: #fff;
+    background-color: rgba(189, 195, 199, 0.6);
+}
+#loading p {
+    text-align: center;
+    margin: 0.5em;
 }
