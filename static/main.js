@@ -217,12 +217,16 @@ wikipediaSocket.init = function(ws_url, lid) {
             };
 
             connection.onmessage = function(resp) {
+                if (loading) {
+                    $('#loading').remove()
+                }
                 try {
-                    if (loading) {
-                        $('#loading').remove()
-                    }
                     var data = JSON.parse(resp.data);
-                    var fill_key;
+                } catch (e) {
+                    console.log(resp);
+                }
+                var fill_key;
+                if (data.is_anon && data.ns === 'Main') {
                     if (data.change_size > 0) {
                         fill_key = 'add';
                     } else {
@@ -266,8 +270,6 @@ wikipediaSocket.init = function(ws_url, lid) {
                             }
                         }
                     });
-                } catch (e) {
-                  console.log(resp);
                 }
             };
         }
