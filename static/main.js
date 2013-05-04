@@ -25,19 +25,6 @@ var edit_times = [];
 var edit_intervals = [];
 var world_map;
 var open_con = []
-var toggler = function($e, url, lid) {
-    var socket = new wikipediaSocket.init(url, lid);
-    if ($e.is(':checked')) {
-        socket.connect();
-    }
-    $e.click(function() {
-        if ($e.is(':checked')) {
-            socket.connect();
-        } else {
-            socket.close();
-        }
-    });
-}
 
 var log_rc = function(rc_str, limit) {
     $('#rc-list').prepend('<li>' + rc_str + '</li>');
@@ -192,8 +179,8 @@ function wikipediaSocket() {
 
 wikipediaSocket.init = function(ws_url, lid) {
     this.connect = function() {
-        $('#' + lid + '-status').html('(connecting...)')
-        var loading = true
+        $('#' + lid + '-status').html('(connecting...)');
+        var loading = true;
         // Terminate previous connection, if any
         if (this.connection)
           this.connection.close();
@@ -203,27 +190,29 @@ wikipediaSocket.init = function(ws_url, lid) {
             this.connection = connection;
             connection.onopen = function() {
                 console.log('Connection open to ' + lid);
-                $('#' + lid + '-status').html('(connected)')
+                $('#' + lid + '-status').html('(connected)');
             };
 
             connection.onclose = function() {
                 console.log('Connection closed to ' + lid);
-                $('#' + lid + '-status').html('(closed)')
+                $('#' + lid + '-status').html('(closed)');
             };
 
             connection.onerror = function(error) {
-                $('#' + lid + '-status').html('Error')
+                $('#' + lid + '-status').html('Error');
                 console.log('Connection Error to ' + lid + ': ' + error);
             };
 
             connection.onmessage = function(resp) {
+                var data;
                 if (loading) {
-                    $('#loading').remove()
+                    $('#loading').remove();
                 }
                 try {
-                    var data = JSON.parse(resp.data);
+                    data = JSON.parse(resp.data);
                 } catch (e) {
                     console.log(resp);
+                    return;
                 }
                 var fill_key;
                 if (data.is_anon && data.ns === 'Main') {
@@ -275,7 +264,8 @@ wikipediaSocket.init = function(ws_url, lid) {
         }
     };
     this.close = function() {
-        if (this.connection)
-        this.connection.close();
+        if (this.connection) {
+            this.connection.close();
+        }
     };
 };

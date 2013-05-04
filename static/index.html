@@ -8,15 +8,10 @@
   <script src="main.js" type="text/javascript" type="text/javascript"></script>
   <script>
         var RC_LOG_SIZE = 20;
-        var EN_URL = 'ws://wikimon.hatnote.com:9000';
-        var DE_URL = 'ws://wikimon.hatnote.com:9010';
-        var RU_URL = 'ws://wikimon.hatnote.com:9020';
-        var JA_URL = 'ws://wikimon.hatnote.com:9030';
-        var ES_URL = 'ws://wikimon.hatnote.com:9040';
-        var FR_URL = 'ws://wikimon.hatnote.com:9050'; <!-- TODO ports, hrm -->
-
+        var DEFAULT_LANG = 'en'
 
         /*  ================================================================ */
+        var SOCKETS = {}
         $(document).ready(function() {
           $('body').append('<div id="loading"><p>Connecting ...</p></div>')
             world_map = $("#map")
@@ -45,19 +40,93 @@
                             'subtract': '#cc4731'
                         }
                  });
+            langs = {
+                'en': ['English', 'ws://wikimon.hatnote.com:9000'],
+                'de': ['German', 'ws://wikimon.hatnote.com:9010'],
+                'ru': ['Russian', 'ws://wikimon.hatnote.com:9020'],
+                'ja': ['Japanese', 'ws://wikimon.hatnote.com:9030'],
+                'es': ['Spanish', 'ws://wikimon.hatnote.com:9040'],
+                'fr': ['French', 'ws://wikimon.hatnote.com:9050']
+            }
+            var make_click_handler = function($box, lang) {
+                return function() {
+                        if ($box.is(':checked')) {
+                            enable(lang);
+                        } else {
+                            disable(lang);
+                        }
+                    }
+            };
+            var return_lang_list = function() {
+                var enabled_langs = window.location.hash.slice(1).split(',');
+                for (var i = 0; i < enabled_langs.length +1; i ++) {
+                    if (enabled_langs[i] == '') {
+                        enabled_langs.splice(i, 1);
+                    }
+                }
+                return enabled_langs;
+            }
+            var set_lang_list = function (langs) {
+                if (langs[0] == '') {
+                    langs.splice(0, 1);
+                }
+                window.location.hash = '#' + langs.join(',');
+            }
+            var enable = function(lang) {
+                var enabled_langs = return_lang_list();
+                if (enabled_langs.indexOf(lang) < 0) {
+                    enabled_langs.push(lang);
+                    set_lang_list(enabled_langs);
+                }
+            };
+            var disable = function(lang) {
+                var enabled_langs = return_lang_list();
+                var lang_index = enabled_langs.indexOf(lang);
+                if (lang_index >= 0) {
+                    enabled_langs.splice(lang_index, 1);
+                }
+                set_lang_list(enabled_langs);
+            };
+            window.onhashchange = function () {
+                var enabled_langs = return_lang_list();
+                for (lang in SOCKETS) {
+                    if (enabled_langs.indexOf(lang) >= 0) {
+                        if (!SOCKETS[lang].connection || SOCKETS[lang].connection.readyState == 3) {
+                            SOCKETS[lang].connect();
+                        }
+                    } else {
+                        if ($('#' + lang + '-enable').is(':checked')) {
+                            $('#' + lang + '-enable').prop('checked', false)
+                        }
+                        if (SOCKETS[lang].connection) {
+                            SOCKETS[lang].close();
+                        }
+                    }
+                }
+                set_lang_list(enabled_langs);
+            }
+            for (lang in langs) {
+                if (langs.hasOwnProperty(lang)) {
+                    $('#lang-boxes').append('<p><input type="checkbox" name="' + langs[lang][0] + '" id="' + lang + '-enable"/><label for="' + langs[lang][0] + '">' + langs[lang][0] + ' Wikipedia <span class="conStatus" id="' + lang + '-status"></span></label></p>')
+                    SOCKETS[lang] = new wikipediaSocket.init(langs[lang][1], lang);
+                    var box = $('#' + lang + '-enable');
+                    if (box.is(':checked')) {
+                        enable(lang)
+                    }
+                    box.click(make_click_handler(box, lang));
+                }
+            }
+            var enabled_langs = return_lang_list();
+            console.log(enabled_langs)
+            if (!enabled_langs.length) {
+                enabled_langs.push(DEFAULT_LANG)
+            }
+            for (var i = 0; i < enabled_langs.length + 1; i ++) {
+                var lang = enabled_langs[i]
+                    $('#' + lang + '-enable').prop('checked', true)
+                    enable(lang)
+            }
             world_map.addBubbles = addBubbles;
-            var en_box = $('#en-enable');
-            toggler(en_box, EN_URL, 'en');
-            var de_box = $('#de-enable');
-            toggler(de_box, DE_URL, 'de');
-            var ja_box = $('#ja-enable');
-            toggler(ja_box, JA_URL, 'ja');
-            var ru_box = $('#ru-enable');
-            toggler(ru_box, RU_URL, 'ru');
-            var es_box = $('#es-enable');
-            toggler(es_box, ES_URL, 'es');
-            var es_box = $('#fr-enable');
-            toggler(es_box, FR_URL, 'fr');
             return;
         });
   </script>
@@ -83,12 +152,7 @@
     </div>
     <div class="foot">
       <h3>Settings</h3>
-      <p><input type="checkbox" name="English" id="en-enable" checked/><label for="English">English Wikipedia <span class="conStatus" id="en-status"></span></label></p>
-      <p><input type="checkbox" name="German" id="de-enable"/><label for="German">German Wikipedia <span class="conStatus" id="de-status"></span></label></p>
-      <p><input type="checkbox" name="Japanese" id="ja-enable"/><label for="Japanese">Japanese Wikipedia <span class="conStatus" id="ja-status"></span></label></p>
-      <p><input type="checkbox" name="Russian" id="ru-enable"/><label for="Russian">Russian Wikipedia <span class="conStatus" id="ru-status"></span></label></p>
-      <p><input type="checkbox" name="Spanish" id="es-enable"/><label for="Spanish">Spanish Wikipedia <span class="conStatus" id="es-status"></span></label></p>
-      <p><input type="checkbox" name="French" id="fr-enable"/><label for="French">French Wikipedia <span class="conStatus" id="fr-status"></span></label></p>
+      <div id="lang-boxes"></div>
       <h3>What is this map?</h3>
       <p><a href='http://blog.hatnote.com/post/49342528753/wikipedia-recent-changes-map'>Read more</a> about this project.</p>
       <p>
