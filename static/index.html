@@ -93,6 +93,7 @@
                     if (enabled_langs.indexOf(lang) >= 0) {
                         if (!SOCKETS[lang].connection || SOCKETS[lang].connection.readyState == 3) {
                             SOCKETS[lang].connect();
+                            $('#' + lang + '-enable').prop('checked', true)
                         }
                     } else {
                         if ($('#' + lang + '-enable').is(':checked')) {
