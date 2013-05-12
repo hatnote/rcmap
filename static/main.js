@@ -222,7 +222,8 @@ wikipediaSocket.init = function(ws_url, lid) {
                         fill_key = 'subtract';
                     }
                     req_url = 'http://freegeoip.net/json/' + data.user;
-                    $.getJSON(req_url, null, function(fgi_resp) {
+                    if (data.geo_ip) {
+                        fgi_resp = data.geo_ip;
                         world_map.options.bubbles = world_map.options.bubbles.slice(-20);
                         loc_str = fgi_resp.country_name;
                         if (fgi_resp.region_name) {
@@ -258,7 +259,9 @@ wikipediaSocket.init = function(ws_url, lid) {
                                 console.log('Could not highlight country: ' + fgi_resp.country_name);
                             }
                         }
-                    });
+                    } else {
+                        console.log('no geodata available for ' + data);
+                    }
                 }
             };
         }
