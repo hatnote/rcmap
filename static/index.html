@@ -1,7 +1,12 @@
 <!doctype html>
 <html>
 <head>
-  <LINK href='style.css' rel='stylesheet' type='text/css'>
+  <title>Hatnote Recent Changes Map</title>
+  <meta name="title" content="Hatnote Recent Changes Map">
+  <meta name="description" content="A map of recent contributions to Wikipedia from unregistered users.">
+  <meta name="keywords" content="hatnote, rcmap, recent changes, wikipedia, edits, visualization">
+  <meta name="author" content="Stephen LaPorte and Mahmoud Hashemi">
+  <link href='style.css' rel='stylesheet' type='text/css'>
   <script src='jquery-1.9.1.min.js' type="text/javascript"></script>
   <script src='datamaps-world.js' type="text/javascript"></script>
   <script src="reconnecting-websocket.min.js" type="text/javascript"></script>
@@ -13,6 +18,11 @@
         /*  ================================================================ */
         var SOCKETS = {}
         $(document).ready(function() {
+          $('#about-link').click(function(){
+            // because we use window.location to set languages.
+            $('html, body').animate({scrollTop:$(document).height()}, 'slow');
+            return false;
+          });
           $('body').append('<div id="loading"><p>Connecting ...</p></div>')
             world_map = $("#map")
                 .datamap({scope: 'world',
@@ -134,7 +144,8 @@
   </script>
 </head>
 <body>
-    <div id="head">
+    <div id="header">
+      <span class="about-link"><a id="about-link" href="">about</a> & <a href="http://blog.hatnote.com/post/49342528753/wikipedia-recent-changes-map">blog</a></span>
       <h1>Wikipedia Recent Changes Map</h1>
     </div>
     <div class="content">
@@ -153,20 +164,19 @@
       </div>
     </div>
     <div class="foot">
-      <h3>Settings</h3>
+      <h3>Languages</h3>
       <div id="lang-boxes"></div>
-      <h3>What is this map?</h3>
+      <h3><a name="about"></a>What is this map?</h3>
       <p><a href='http://blog.hatnote.com/post/49342528753/wikipedia-recent-changes-map'>Read more</a> about this project.</p>
       <p>
         When an <a href="http://en.wikipedia.org/wiki/Wikipedia:User_access_levels#Unregistered_users">unregistered user</a> edits Wikipedia,
-        he or she is identified by his or her <acronym title="Internet Protocol">IP</acronym> address. These IP addresses are
-        translated to users' approximate geographic location. Edits by registered users do not have associated IP information,
+        he or she is identified by his or her <acronym title="Internet Protocol">IP</acronym> address. These IP addresses are translated to users' approximate geographic location. Unregistered users only make a fraction of total edits -- <b>only 15%</b> of the contributions to English Wikipedia are from unregistered users. Edits by registered users do not have associated IP information,
         so the map actually represents only a small portion of the <a href="http://en.wikipedia.org/wiki/Special:RecentChanges">total
           edit activity on Wikipedia</a>.
       </p>
       <p>
         Built using <a href="http://d3js.org">d3</a>, <a href="http://datamaps.github.io">DataMaps</a>,
-        <a href="http://freegeoip.net/">freegeoip.net</a>, and
+        <a href="https://github.com/fiorix/freegeoip">freegeoip.net</a>, and
         the <a href="http://meta.wikimedia.org/wiki/Research:Data#IRC_Feeds">Wikimedia RecentChanges IRC feed</a>,
         broadcast through <a href="https://github.com/hatnote/wikimon">wikimon</a>.
         Source <a href="https://github.com/hatnote/rcmap">available on github</a>.

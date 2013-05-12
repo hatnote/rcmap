@@ -6,10 +6,7 @@ body {
     font-family: sans-serif;
 }
 h1 {
-    background: #f8f8f8;
-    margin: 0;
     padding: .5em;
-    border-bottom: 1px solid #d8e6ec;
 }
 p {
     line-height: 1.5em;
@@ -23,6 +20,14 @@ a:hover {
 }
 label {
     margin-left: .5em;
+}
+.about-link {
+    float: right;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 1.5em;
+    padding-right: 2em;
+    padding-top: 1em;
 }
 .wrapper {
     overflow: hidden; /* To clear contents */
@@ -91,6 +96,11 @@ label {
 }
 .conStatus {
     color: #bdc3c7;
+}
+#header {
+    background: #f8f8f8;
+    margin: 0;
+    border-bottom: 1px solid #d8e6ec;
 }
 #edit_counter {
     font-size: 1.5em;
