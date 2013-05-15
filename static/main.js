@@ -189,18 +189,18 @@ wikipediaSocket.init = function(ws_url, lid) {
             var connection = new ReconnectingWebSocket(ws_url);
             this.connection = connection;
             connection.onopen = function() {
-                console.log('Connection open to ' + lid);
+                window.console && console.log('Connection open to ' + lid);
                 $('#' + lid + '-status').html('(connected)');
             };
 
             connection.onclose = function() {
-                console.log('Connection closed to ' + lid);
+                window.console && console.log('Connection closed to ' + lid);
                 $('#' + lid + '-status').html('(closed)');
             };
 
             connection.onerror = function(error) {
                 $('#' + lid + '-status').html('Error');
-                console.log('Connection Error to ' + lid + ': ' + error);
+                window.console && console.log('Connection Error to ' + lid + ': ' + error);
             };
 
             connection.onmessage = function(resp) {
@@ -211,7 +211,7 @@ wikipediaSocket.init = function(ws_url, lid) {
                 try {
                     data = JSON.parse(resp.data);
                 } catch (e) {
-                    console.log(resp);
+                    window.console && console.log(resp);
                     return;
                 }
                 var fill_key;
@@ -255,12 +255,12 @@ wikipediaSocket.init = function(ws_url, lid) {
 
                         if (!country_hl[0][0]) {
                             country_hl = highlight_country(country_name_map[fgi_resp.country_name]);
-                            if (!country_hl[0][0]) {
+                            if (!country_hl[0][0] && window.console) {
                                 console.log('Could not highlight country: ' + fgi_resp.country_name);
                             }
                         }
                     } else {
-                        console.log('no geodata available for ' + data);
+                        window.console && console.log('no geodata available for', data['url']);
                     }
                 }
             };
