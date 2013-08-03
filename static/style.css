@@ -97,6 +97,15 @@ label {
 .conStatus {
     color: #bdc3c7;
 }
+#lang-boxes p {
+    float: left;
+    width: 20em;
+    font-size: .9em;
+}
+
+.clear br {
+    clear: left;
+}
 #header {
     background: #f8f8f8;
     margin: 0;
