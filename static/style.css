@@ -70,6 +70,12 @@ label {
 .rc-list ul {
     height: 30em;
 }
+.rc-sunset {
+    padding: 1em;
+    font-size: 1.2em;
+    line-height: 1.6em;
+    color: #555;
+}
 .rc-list h3 {
     padding: .5em;
     margin: 0;
