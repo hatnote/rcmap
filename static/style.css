@@ -139,3 +139,15 @@ label {
     text-align: center;
     margin: 0.5em;
 }
+#sunset-notice {
+	background-color: #fff3cd;
+	border-bottom: 1px solid #ffc107;
+	padding: 1em 2em;
+	font-size: 1.1em;
+	line-height: 1.6em;
+	text-align: center;
+}
+#sunset-notice a {
+	color: #306596;
+	text-decoration: underline;
+}

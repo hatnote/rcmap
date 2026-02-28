@@ -175,6 +175,9 @@
       <span class="about-link"><a id="about-link" href="">about</a> & <a href="http://blog.hatnote.com/post/49342528753/wikipedia-recent-changes-map">blog</a></span>
       <h1>Wikipedia Recent Changes Map</h1>
     </div>
+    <div id="sunset-notice">
+	<p><strong>Recent Changes Map has been sunset.</strong> In November 2025, Wikipedia replaced anonymous IP-based editing with <a href="https://en.wikipedia.org/wiki/Wikipedia:Wikipedia_Signpost/2025-11-10/News_and_notes">temporary accounts</a>, removing the IP addresses that made geolocation possible. This is a positive change for editor privacy. Thanks for all the years of watching the map! For a live feed of Wikipedia edits, visit <a href="https://listen.hatnote.com">Listen to Wikipedia</a>.</p>
+    </div>
     <div class="content">
     <div id="wrapper">
         <div id="map"></div>
@@ -198,17 +201,14 @@
       <h3><a name="about"></a>What is this map?</h3>
       <p><a href='http://blog.hatnote.com/post/49342528753/wikipedia-recent-changes-map'>Read more</a> about this project.</p>
       <p>
-        When an <a href="http://en.wikipedia.org/wiki/Wikipedia:User_access_levels#Unregistered_users">unregistered user</a> edits Wikipedia,
-        he or she is identified by his or her <acronym title="Internet Protocol">IP</acronym> address. These IP addresses are translated to users' approximate geographic location. Unregistered users only make a fraction of total edits -- <b>only 15%</b> of the contributions to English Wikipedia are from unregistered users. Edits by registered users do not have associated IP information,
-        so the map actually represents only a small portion of the <a href="http://en.wikipedia.org/wiki/Special:RecentChanges">total
-          edit activity on Wikipedia</a>.
+	This map showed the approximate geographic location of unregistered Wikipedia editors, identified by their IP addresses. In November 2025, Wikipedia <a href="https://en.wikipedia.org/wiki/Wikipedia:Wikipedia_Signpost/2025-11-10/News_and_notes">adopted temporary accounts</a> for unregistered editors, replacing visible IP addresses with pseudonymous usernames. This change improves editor privacy but means geolocation of edits is no longer possible. The map is preserved here as an archive.
       </p>
       <p>
-        Built using <a href="http://d3js.org">d3</a>, <a href="http://datamaps.github.io">DataMaps</a>,
-        <a href="https://github.com/fiorix/freegeoip">freegeoip.net</a>, and
-        the <a href="http://meta.wikimedia.org/wiki/Research:Data#IRC_Feeds">Wikimedia RecentChanges IRC feed</a>,
-        broadcast through <a href="https://github.com/hatnote/wikimon">wikimon</a>.
-        Source <a href="https://github.com/hatnote/rcmap">available on github</a>.
+	Built using <a href="http://d3js.org">d3</a> and <a href="http://datamaps.github.io">DataMaps</a>,
+	with geolocation data from MaxMind GeoLite2 and
+	the <a href="https://wikitech.wikimedia.org/wiki/Event_Platform/EventStreams">Wikimedia EventStreams</a> feed,
+	broadcast through <a href="https://github.com/hatnote/wikimon">wikimon</a>.
+	Source <a href="https://github.com/hatnote/rcmap">available on GitHub</a>.
       </p>
       <p>Built by <a href="https://github.com/slaporte">Stephen LaPorte</a> and <a href="https://github.com/mahmoud">Mahmoud Hashemi</a>.</p>
     </div>
